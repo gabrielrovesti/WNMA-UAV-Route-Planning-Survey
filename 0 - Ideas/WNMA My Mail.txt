@@ -1,0 +1,19 @@
+Gentile professore,
+
+Le scrivo in relazione all'esame di WNMA. Ho sostenuto la prova orale a Febbraio 2024, ottenendo un punteggio di 25. Mi manca ancora da completare il progetto, che inizialmente stavo sviluppando insieme allo studente Nicola Ursino. Ora intendo procedere autonomamente con una mia proposta, mentre lui porterà avanti l'idea che avevamo concepito in origine (se necessario, posso inoltrare le precedenti comunicazioni per conferma, sia riguardo l'esame che il progetto con Ursino).
+
+La mia proposta è di elaborare un survey, ispirandomi principalmente alle slide sui progetti del corso, in particolare al secondo esempio. L'obiettivo sarebbe di esaminare lo stato dell'arte degli algoritmi di pianificazione del percorso per le reti UAV, considerando vari approcci e valutandone l'efficacia in diversi scenari.
+
+I paper di riferimento per questo lavoro includono (di seguito i titoli e gli autori, che verranno citati appropriatamente nel documento finale):
+
+- Sathyaraj, B.M., Jain, L.C., Finn, A. et al. "Multiple UAVs path planning algorithms: a comparative study"
+- Y. Xu and C. Che, "A Brief Review of the Intelligent Algorithm for Traveling Salesman Problem in UAV Route Planning"
+- Fei Yan, Yi-Sha Liu and Ji-Zhong Xiao, "Path Planning in Complex 3D Environments Using a Probabilistic Roadmap Method"
+- Zhang, Wei & Zhang, Sai & Wu, Fengyan & Wang, Yagang, "Path Planning of UAV Based on Improved Adaptive Grey Wolf Optimization Algorithm"
+- P. Yao, Z. Xie and P. Ren, "Optimal UAV Route Planning for Coverage Search of Stationary Target in River"
+
+Nell'analisi, verranno inclusi anche gli articoli presenti nell'immagine allegata. Il mio intento è di realizzare una classificazione degli algoritmi basata sulle loro caratteristiche principali e poi confrontarli secondo criteri come efficienza, scalabilità, ottimalità dei percorsi previsti e applicabilità a scenari reali, discutendo le sfide attuali e le potenziali direzioni future.
+
+Vorrei chiederLe se questa proposta progettuale può essere considerata valida con i paper presentati e se il voto precedentemente ottenuto rimarrebbe invariato. In tal caso, potrei procedere con la consegna della rassegna nel formato IEEE previsto (accompagnata da una presentazione) e così concludere l'esame, mantenendo il voto.
+
+La ringrazio per l'attenzione, cordiali saluti.
