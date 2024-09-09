@@ -1,0 +1,499 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{tabularx, booktabs}
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+\begin{document}
+
+\title{A survey on UAV Route Planning Strategies for Efficient Coverage Search in Complex Environments}
+
+\author{
+
+\IEEEauthorblockN{Prof. Claudio Enrico Palazzi}
+\IEEEauthorblockA{\textit{Department of Mathematics} \\
+\textit{University of Padua}\\
+Padua, Italy\\
+cpalazzi@math.unipd.it}
+
+\and 
+
+\IEEEauthorblockN{Gabriel Rovesti}
+\IEEEauthorblockA{\textit{Department of Mathematics} \\
+\textit{University of Padua}\\
+Padua, Italy \\
+gabriel.rovesti@studenti.unipd.it}
+
+}
+
+\maketitle
+
+\begin{abstract}
+
+The development of Unmanned Aerial Vehicles (UAVs) nowadays has turned them into powerful tools in many different applications, including search and rescue, environmental monitoring, and disaster relief. Among the widely experienced difficulties in such scenarios, the efficient route planning for a coverage search goes to the very top in a complex and dynamic environment. This survey provides a review of recent findings in developing efficient route-planning strategies in the context of a search for coverage with UAVs, enabling a good balance among efficiency, adaptability, and robustness, while comparing main features and opening scenarios over their analysis comprehensively.\\ 
+
+Some of the key algorithms that are to be discussed in this survey start from techniques such as the probabilistic roadmap method to the adaptive grey wolf optimization technique. An attempt is made to analyze these techniques in terms of relative strengths and weaknesses under various contexts of operation. Particular emphasis is paid to those methods that take into consideration real-world constraints such as energy limitations, obstacle avoidance, and mission needs with a time factor sensitivity. This survey synthesizes the insights from recent literature works on this very topic, including works on delay-tolerant networks and multi-UAV coordination, with the aim of providing an overview of the state-of-the-art in the field of UAV route planning for coverage search. Finally, open challenges will be spotted, discussing promising future directions of this fast-evolving field; the emphasis will be on solutions that can be seamlessly integrated with emerging technologies and adapted to diverse mission scenarios.\\
+
+\end{abstract}
+
+\begin{IEEEkeywords}
+UAV, route planning, coverage search, optimization algorithms, probabilistic roadmap, graph algorithms, multi-UAV coordination, grew wolf optimization, nature-inspired algorithms, obstacle avoidance, military applications
+\end{IEEEkeywords}
+
+\section{Introduction: Context and Scenarios}
+
+From their initial niche use in the military, UAVs have quickly evolved into multi-functional servants across a broad array of civilian and commercial uses. This has happened because of diverse capabilities: to reach hard-to-reach areas, with increasing autonomy and variable payload capacity, which makes them irreplaceable in many applications-from the detection of objectives to environmental surveillance, passing through disaster interventions, among others. 
+
+The key challenges that have been identified with regard to effective deployment of UAVs relate to path planning and communication-related problems in multi-agent operations or team operations. Coverage search basically involves correctly searching the area to locate targets and gathering all information about the zone correctly. In a broader sense, in the context of UAVs, this normally involves complex 3D environments while performing optimization for a variety of factors such as energy efficiency, obstacle avoidance, mission duration, among others. This problem becomes considerably harder with an increase in the number of UAVs and in environmental complexity; hence, proper planning and good coordinating strategies are required.
+
+As \cite{paper1} highlights, UAVs often operate in teams to achieve specific goals, while necessitating efficient communication and coordination. This task may reveal complex, increasing significantly with the number of UAVs and the intricacy of the environment. Path planning must consider various factors, mainly including:
+
+\begin{enumerate}
+    \item Physical obstacles and terrain
+    \item Communication constraints
+    \item Limited sensor capabilities
+    \item The need for cooperative control among multiple UAVs
+    \item Energy efficiency and mission duration
+\end{enumerate}
+
+The path planning problem is further complicated by the need of maintaining constant communication between the UAVs themselves and human supervisors, even in challenging environments where LoS (Line-of-Sight) may be obstructed or in general where there may be technical failures of some kind or enemy action to follow. Efficiency needs to be considered carefully, since routing protocols want to determine the best route to a particular destination using specific metrics and algorithms, so to accomplish many goals or missions in the shortest period of time as possible. Also, with the expansion of UAV applications into areas such as smart cities and intelligent transportation systems, the integration of UAVs with other IoT elements opens up new challenges and opportunities regarding route planning and coordination. \\
+
+In recent years, there has been significant development regarding both algorithms for the route planning of UAVs and communications routing. Approaches range from classical path-finding algorithms adapted to novel nature-inspired optimization techniques, which are proposed for use in this environment. For instance, a network can be modeled mathematically as a graph, where there is no intermediate communication between nodes to function, with different paths and intended destination. The process of path finding may involve multiple problems, including loop forming, quick and precise accuracy in calculating paths towards destinations, heuristics in planning the choice of best paths, having seamless end-to-end information transfer whatever the scenario considered. For this specific reason, researchers have explored the use of well-known algorithms like Dijkstra's algorithm, Bellman-Ford's algorithm, Floyd-Warshall's algorithm, and the A* algorithm for UAV path planning, with A* showing superior performance in many scenarios. Additionally, meta-heuristic algorithms such as Gravitational Search Algorithm (GSA), Genetic Algorithm (GA), Ant Colony Optimization (ACO), and Neural Networks (NN) have been applied to solve complex route planning problems \cite{paper2}. \\
+
+The growing complexity of UAV applications has led to the emergence of new problem formulations, regarding variant of the Traveling Salesman Problem, such as the multi-traveling salesman problem (MTSP) and vehicle route problems (VRP), which are particularly relevant for logistics and multi-UAV coordination. These problems require innovative solutions able to combine multiple algorithms or leverage advanced techniques, like fuzzy logic and fuzzy neural networks. The goal of the present survey is infact to provide a comprehensive overview of the current state of UAV route planning for coverage search, with particular focus on operations in complex environments. Various approaches will be examined and categorized, analyzing for each method real-world challenges, providing a state-of-the-art overview of the algorithms present in this field. Some of the challenges present here are like the following:
+
+\begin{enumerate}
+    \item Obstacle avoidance in complex 3D environments
+    \item Energy efficiency and mission duration optimization
+    \item Multi-UAV coordination and task allocation
+    \item Maintaining robust communication networks in challenging conditions
+    \item Adapting to dynamic and uncertain environments
+    \item Integration with IoT and smart city infrastructures
+\end{enumerate}
+
+Various insights will be gathered from recent literature including works on DTN - Delay Tolerant Networks, adaptive optimization techniques, and multi-agent systems with the aim of identifying trends, challenges, and promising future directions for research operated in this fast-evolving field. For this purpose, the goal is to provide researchers and practitioners with a good understanding of current techniques and tools, as well as open problems in the field that remain to be solved. 
+
+The key contributions this survey, to summarize, wants to provide are the following ones:
+
+\begin{itemize}
+    \item A systematic categorization of route-planning approaches, from classical algorithms to state-of-the-art techniques
+    \item An analysis and study on how each method addresses real-world constraints, such as energy limitations, distance reached, obstacle avoidance
+    \item Identification of open challenges and promising future research directions
+\end{itemize}
+
+The rest of this paper is organized as follows: Section II gives most detail at a high-level about the main algorithms considered, then detailing some issues and making it able to focus the problem. Description of various approaches to the UAV route planning problem, extending from classical algorithms to state-of-the-art recent developments, is presented in some robust detail into Section III. Section IV compares and analyzes these methods with respect to computational efficiency, scalability, and applicability in the real world. Section V concludes the paper with some open challenges and future directions based on the capability of the integration of technology with respect to UAV systems with, for example, 5G networks and smart city infrastructure. Finally, Section VI concludes the survey by summarizing the main findings and offering perspectives on the future of the route planning problem for the coverage search of UAVs.
+
+\section{Related Work and their issues}
+
+The field of UAV route planning has seen significant advancements in recent years, driven by the increasing complexity of mission requirements and operating environments. Here, we'll analyze one by one the key areas of research and persistent challenges in each domain, incorporating insights and reasoning from recent studies, addressing specific mission objectives and goals.
+
+\subsection{Traditional Path Planning Algorithms}
+
+Traditional path planning algorithms, such as Dijkstra's algorithm, Bellman-Ford algorithm, and A*, have long been the cornerstone of route planning in various domains, including UAV operations, e.g. Dijkstra's algorithm has been extended to include altitude considerations, A* for aerial navigation. For planning the paths of numerous UAVs, Sathyaraj et al. (2015) \cite{paper1} conducted an inclusive comparative analysis between these algorithms of planning from multiple UAVs, giving a high-level survey. Nevertheless, although such traditional methods are very powerful there are challenges when employing them in complicated UAV situations, particularly with regard to high computational complexity and additional forms of adaptation in dynamically changing situations. 
+
+\subsection{Probabilistic Methods}
+
+To address some of these limitations, researches have turned to probabilistic methods. Yan et al. \cite{paper3} explore the application of Probabilistic Road-map Method (PRM) inside of complex 3D environments, highlighting how much this can handle effectively high-dimensional configuration spaces in an effective and efficient way, randomly sampling the configuration space to create a road-map, then queried for path planning. In order to create a road-map, PRM and its variations use random sampling of the configuration space that enhance their effectiveness in complex environments. However, there are still obstacles associated with finding an equilibrium between exploration and exploitation, particularly in fluctuating environments.
+
+\subsection{Nature-Inspired Algorithms}
+
+In this field, also nature-inspired algorithms were explored, opening new pathways in this field of research and opening more pathways to solve complex UAV route planning problems. Other nature-inspired algorithms applied to UAV route planning include Particle Swarm Optimization (PSO) and Ant Colony Optimization (ACO). These methods are particularly useful for multi-objective optimization problems, such as minimizing flight time while maximizing area coverage. The researchers in \cite{paper4} include Zhang and others who show how UAV route planning can be achieved using Grey Wolf Optimizer, this has proven that this method is good for working with multi criteria optimization and dynamic scenarios. However, these algorithms have issues such as premature convergence and tuning of parameters even though they are able to find near-optimal solutions in large search spaces, because of issues given by premature convergence and parameter tuning.
+
+\subsection{Multi-UAV Coordination and Environmental Considerations}
+
+Recent research has focused on decentralized approaches to multi-UAV coordination, using techniques from swarm intelligence and consensus algorithms. These methods aim to improve scalability and robustness in large-scale operations. Multiple vehicles working in tandem might be involved, so complexities arise from coordination and communication. As per Xu and Che \cite{paper2}, intelligent algorithms for solving the Traveling Salesman Problem have been reviewed in the context of UAV route planning, which is especially important for multi-UAV coordination. On the positive side, multi-UAV systems provide better capabilities, but on the disadvantageous side, they cause difficulties in path optimization, collision avoidance, and ensuring communication links are reliable. 
+
+Environmental considerations play a crucial role in particularly UAV operations, like Yao et al. \cite{paper5} address the optimal UAV route planning for coverage search of stationary targets in river environments, underscoring the importance of considering specific environmental factors in path planning algorithms. Real-world UAV operations must contend with a myriad of different constraints from the environments, often oversimplified in theoretical models.
+
+\subsection{Flight Dynamics and Military Applications}
+
+In relation to flight dynamics, Myers, et al. \cite{ref1} offered a new strategy which incorporated both obstacle avoidance and including flight dynamics into the route planning procedure. This real time network presents benefits of rapidly generating feasible paths within dynamic conditions yet it has limitations when it comes to scaling for vast open areas or intricate situations.
+In the context of military operations, Royset et al. \cite{ref2} presented a constrained shortest-path algorithm to be used for routing military aircraft. This approach resulted particularly useful in handling multiple constraints, crucial in military scenarios where factors like fuel consumption, risk exposure, mission timing and careful accuracy are all considered critical. While the approach might reveal valid by itself in those environments, adapting such algorithms to civilian UAV applications might reveal challenging, since constraints and objectives may vary and this presents its own sets of challenges. \\
+
+Research in the future focuses on combining different algorithm techniques, integrating real-time data with machine learning, and developing more sophisticated multi-UAV coordination models in dynamic and complicated situations. There is an increasing demand for tools that can move smoothly from military to civilian applications given the contrasting constraints and priorities in both domains. Ongoing changes in this area are due to the demand for more efficient, stronger, and adaptable solutions which can connect accurately the theoretical models with their practical real-world applications. In the following sections, each will be analyzed, so to gain a comprehensive idea of all the approaches present and understand the numerous challenges each approach encounters.
+
+\section{UAV Route Planning Approaches}
+
+In this section, the vast array of methodologies UAV route planning encompasses will be discussed, each tailoring the specific challenges needed to be solved inside of complex environments. Considering the present literature, diverse studies will be explored and examined comprehensively, ranging from all kinds of methods and algorithms presented in the previous section at a high-level, to be properly discussed and compared below. 
+For each subsection, the aim is to:
+\begin{enumerate}
+    \item explain the core concept of the approach presented;
+    \item discuss its advantages and limitations and provide examples of application and potential use cases;
+    \item analyze the impact on real-world scenarios and compare it with other approaches where relevant, gathering relevant observations over  these algorithms usage.
+\end{enumerate}
+
+By comparing these diverse methodologies, this survey has the goal to offer a comprehensive understanding of the current state of UAV route planning and identify areas for future research and development.
+
+\subsection{Classical Approaches}
+
+These range of approaches is to be considered the foundation of many UAV route planning strategies. These methods, mainly thought for ground-based robotics and network routing, have been adapted for aerial applications. A network, classically, can be expressed mathematically as a \textit{graph}, composed by nodes and edges, the first representing destinations and the second having links with values depending on distance, type/availability/reliability of nodes, bandwidth constraints and other performance metrics. \\
+
+Another common object in mathematics able to describe such a network is the \textit{adjacency matrix}, where each edge represents a couple of elements and the presence (value $1$) or absence (value $0$) of a path between them, able to test the capability of a selected algorithm. Classical search algorithms have been employed to realize the\textit{ path finding}, meaning the determination of all the possible routes/paths from a source to a destination, deciding to take the best route according to the current traffic conditions, moving from one place to one another.
+In the next subsections, we will focus on each of these algorithms, as presented by \cite{paper1}. \\
+
+% Discuss how these are adapted for UAV use
+% Mention strengths and limitations in UAV contexts
+
+\subsubsection{Bellman-Ford Algorithm}
+
+The Distance Vector Algorithm, also known as the Bellman-Ford algorithm, is an iterative and distributed approach to finding the shortest path in a graph. The algorithm operates by repeatedly relaxing edges. As noted by \cite{paper1}, this approach allows the algorithm to handle negative edge weights, which can be useful in UAV routing when considering factors like energy harvesting during operations like descent. This is done through a process of information exchange and update among neighboring nodes. In a UAV network, each vehicle/ground station involved would maintain a table of distances between all nodes, sharing this with the immediate neighbors. This information is propagated through the network, converging on the optimal paths eventually.
+
+This "classic" algorithm can become particularly useful thanks to its ability of handling negative edge weights. In the context of aerial navigation, these weights can represent favorable conditions such as tailwinds or energy-efficient descent paths, allowing for more nuanced path planning, taking advantage of different environmental factors to optimize efficiency. Moreover, the distributed nature of this algorithm aligned well with the decentralized operations often required in multi-UAV missions. Each UAV can update its routing information independently, based on local observations and communications enhancing the robustness and scalability of the system, being particularly valuable in scenarios where centralized control is impractical or just vulnerable to possible disruptions. \\
+
+The application of Bellman-Ford, however, is not without challenges in the real-world UAV routing scenarios. The computational complexity of the algorithm increases exponentially with the number of nodes, leading to significant processing demands and slower convergence to optimal paths. For missions requiring rapid route adjustments in complex environments, this overhead can be problematic. A problem which may arise is the "count-to-infinity", in which given certain configurations particularly in case of failing, the algorithm may slowly update through a series of incremental changes, temporarily creating loops; this can lead to inefficient flight paths and increased fuel consumption before the optimal route recalculation. \\
+
+Despite these challenges, this algorithm still remains a valuable tool, particularly for distributed computation scenarios able to consider multiple situations and outweighing the need for rapid convergence. Its application could be particularly effective in planning strategic flight paths for multi-UAV operations, prioritizing overall mission efficiency over rapid tactical responses. Hybrid approaches can combine this algorithm with other methods, involving careful consideration of the update frequency and information sharing protocols. \\
+
+\subsubsection{Floyd-Warshall’s algorithm}
+
+This algorithm proves to be versatile in finding the shortest paths between all pairs of vertices in a weighted graph. Unlike some other algorithms focusing on single-source shortest paths, Floyd-Warshall provides a comprehensive solution for the entire graph in a single execution, without recalculating the problem solution twice. This is done, at its core, employing dynamic programming techniques. It iteratively considers each vertex as an intermediate point and updates the shortest path between every pair of vertices, this if going through an intermediate vertex results in a shorter path. This process continues until all vertices have been considered as intermediates. \\
+
+One of the primary advantages of this one is its simplicity and elegance, given it's straightforward to implement and understand, making it a good option for scenarios where clarity and maintainability are important. Finding all-pairs shortest paths can be beneficial for example in pre-mission planning stages for UAVs, where a comprehensive understanding of all possible routes at once can be required. This algorithm, however, has significant limitations, particularly in the context of real-time planning of paths. This has a time complexity of $O(n^3)$, given $n$ the number of vertices, so it's definitely very inefficient for large graphs. This growth can be prohibitive when involving large operational areas, even requiring frequent path recalculations. In real world applications, Floyd-Warshall might find its nice when dealing with relatively small and possibly static environments, generating a map of optimal paths between all points inside of the network before the UAVs take flights. In more dynamic conditions, it will render less suitable for path planning, particularly when dynamic obstacles and mission parameters continuously change. \\
+
+\subsubsection{Dijkstra's Algorithm}
+
+The algorithm, historically a cornerstone \cite{dijkstra} in graph theory and pathfinding, offers a systematic approach to finding the shortest path between a starting node and all of the other nodes in a weighted graph. It maintains two sets of vertices: those whose shortest path from the source has been determined and those where the path is yet unknown. In the execution, it assigns a tentative value of distance to every single node, starting from zero for the initial one and infinity to all others. As it progresses, it selects the unvisited node with the smallest distance, updating the neighbor's one if smaller. The node is then marked as "visited" and never checked again, continuing until all nodes have been correctly visited. Mathematically, the algorithm maintains a set $S$ of vertices whose final shortest-path weights from the source s have already been determined. It repeatedly selects the vertex $u \in V - S$ with the minimum shortest-path estimate, adds $u$ to $S$, and relaxes all edges leaving $u$. \\
+
+The ability of the algorithm to guarantee the optimal path in terms of total edge weight is important, making it reliable for finding the most efficient route or in sparse graphs, allowing for quick path calculations in certain types of environments. Moreover, Dijkstra's algorithm can be adapted to consider multiple criteria beyond mere distance, such as energy consumption or risk exposure, important factors to be considered. However, this algorithm is not without problems, once again coming from degrading performance in dense graphs, problematic in environments where UAV operation may be limited by numerous obstacles or waypoints. Additionally, contrary to Bellman-Ford, it does not work with negative edge weights, limiting its applicability in scenarios where the path segments might offer "advantages", covered by negative weights. In real world applications, once again this algorithm can prove to be most effective in well-defined, static environments, for example where the UAV needs to visit multiple waypoints in the most efficient order for goal-directed searches, common in many UAV missions: in case where dynamic obstacles need to be handled or environments change, adaptability is key and this algorithm would prove to not be effective overtime.\\
+
+\subsubsection{A* Algorithm}
+
+The A* (A-star) algorithm, developed by Hart, Nilsson, and Raphael in 1968 \cite{astar}, is a notable advancement in pathfinding techniques, blending aspects of uniform-cost search with heuristic search. This informed search (uses additional knowledge, like heuristics, to guide the search process and find a solution more efficiently by focusing on specific paths) algorithm is highly effective in identifying the least-cost path from a start node to a goal node, making it especially useful for goal-directed pathfinding tasks, such as those often encountered in UAV operations. The approach adopted by the algorithm employs a best-first search approach, meaning it combines the cost to reach a node (described by a function $g(n)$) and an heuristic estimate of the cost from the node to the goal, described by $h(n)$. The combined function $f(n)=g(n)+h(n)$ guides the algorithm towards the most promising paths, given the algorithm also maintains a priority of the queue of nodes to be explored, ensuring it always expands the most promising node first. \\
+
+One of the key strengths of the A* algorithm is given by its flexibility and efficiency, given it's generally faster than Dijkstra, especially in goal-directed scenarios, which are pretty common in UAV path planning. The use of a heuristic function allows A* to leverage domain-specific knowledge, improving performance considerably. This adaptability makes A* suitable for a wide range of UAV mission profiles, from simple navigation made point-to-point to complex multi-objective operations. The general performance of the algorithm depends heavily on the quality of the chosen heuristic function, given a poorly chosen one can lead to suboptimal paths or increased computation time, specifically in large search spaces: in these cases, A* would prove to be very memory-intensive, straining the resources of UAV systems and further complicating the coordination of limited resources present. \\
+
+In real-world applications, A* has found use given its efficiency and flexibility, being adapted to incorporate various UAV-specific constraints, e.g. turning radius, altitude restrictions, energy consumption, revealing quite effective both in 2D and 3D environments, making it suitable for a good range of operations. However, designing an appropriate heuristic function for complex and dynamic environments remains a challenge, often requiring precise tuning and domain expertise, given the traffic conditions. A*'s ability to balance factors like completeness and optimality makes it a popular choice given its intelligent refining, handling complexities of real-world environments while providing timely solutions, being more effective depending on its tuning and implementation, given the application specific requirements.
+
+\subsection{Summary of Classical Approaches}
+
+To provide a concise overview of the classical algorithms discussed, Table \ref{tab:algorithm_comparison} summarizes their key characteristics and their applicability to UAV route planning. This comparison highlights the strengths and limitations of each approach in the context of UAV operations.
+
+\begin{table*}[ht]
+\centering
+\caption{Comparison of Classical Path Planning Algorithms for UAV Applications}
+\label{tab:algorithm_comparison}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|p{2cm}|p{2.5cm}|p{2.5cm}|p{2.5cm}|p{3.5cm}|p{3.5cm}|}
+\hline
+\textbf{Algorithm} & \textbf{Time Complexity} & \textbf{Space Complexity} & \textbf{Handles Negative Weights} & \textbf{Best Use Case in UAV Context} & \textbf{Main Limitation in UAV Context} \\
+\hline
+Bellman-Ford & $O(VE)$ & $O(V)$ & Yes & Distributed multi-UAV operations, scenarios with potential energy gain & Slow convergence in large networks \\
+\hline
+Floyd-Warshall & $O(V^3)$ & $O(V^2)$ & Yes (if no negative cycles) & Pre-mission planning for all-pairs shortest paths & Impractical for large-scale or real-time applications \\
+\hline
+Dijkstra & $O((V+E)\log V)$ & $O(V)$ & No & Efficient for sparse graphs, static environments & Performance degrades in dense graphs or dynamic environments \\
+\hline
+A* & $O(b^d)$ (worst case) & $O(b^d)$ & Depends on implementation & Goal-directed searches, complex environments & Effectiveness depends on heuristic quality \\
+\hline
+\multicolumn{6}{l}{\small Where: $V =$ number of vertices, $E =$ number of edges, $b =$ branching factor, $d =$ depth of the solution}\\
+\end{tabular}
+\end{table*}
+
+This table provides a quick reference for comparing the algorithms across key metrics relevant to UAV path planning. It highlights the strengths and limitations of each algorithm in the context of UAV applications, complementing the detailed descriptions provided in the previous sections.
+
+\subsection{Probabilistic Methods}
+
+As UAV operations become increasingly more complex, involving three-dimensional environments, traditional path planning algorithms often struggle with the high-dimensional configuration spaces and dynamic obstacles encountered. To address such challenges, researches have turned to usage of \textit{probabilistic methods}, offering a more flexible and scalable approach to route planning. Among these, this survey turns its attention to the \textit{Probabilistic Roadmap Method}, which has emerged as a particularly effective technique in such complex environment. Details and features of such method will be explained in detail in the following subsection. It represents a paradigm shift in path planning and was first introduced by Kavraki et al. in 1996 \cite{originalprm}.
+
+\subsubsection{Probabilistic Road-map Method (PRM)}
+
+This method, as explored by \cite{paper3}, represents a significant advancement into addressing the complexities in UAV route planning, since this is a sampling-based algorithm designed to solve path planning problems in high-dimensional configuration spaces. This model operates with two main distinct phases: a \textit{learning} phase and a \textit{query} phase, each playing a role into generating efficient and feasible flight paths for UAVs. \\
+
+During the \textit{learning} phase, the algorithm constructs a roadmap defined as an undirected graph $R = (N,E)$, where $N$ is the set of nodes, randomly sampled and $E$ are the edges connecting them. Nodes are progressively chosen and connected using the free space available. The samples become nodes, this way representing potential waypoints for the UAV, then the algorithm attempts to connect near nodes, resulting in a roadmap capturing the navigable space for the UAV, including scenarios like complex terrain and obstacle-laden. In this case, basic PRM encounters the problem of narrow passages, due to random sampling of nodes inside of the free space, normally solved placing configurations near obstacle boundaries or dividing the space available in subspaces. 
+The \textit{query} phase, instead, utilizes the pre-computed roadmap to find paths between specified start and goal configurations. This phase typically employs "classical" graph search algorithms, such as A* or Dijkstra's algorithm, leveraging the efficiency of these methods into the simplified graph representation of the current environment. \\
+
+One of the key strengths of PRM methods lies in the ability to handle complex spaces made of multiple dimensions efficiently. In the context of 3D navigation, the configuration space not only has position, but also other parameters such as orientation, velocity, energy constraints, etc. PRM can generate feasible paths quicker than most exhaustive search methods and this can become particularly crucial in time-sensitive missions or environments in which computational resources are limited. Yan et al. \cite{paper3} propose several improvements over the basic PRM algorithm, tailoring it for UAV planning for complex situations into high-dimensional environments and aiming to represent an environment into a 3D point cloud captured by a laser scanner, then using algorithms to divide the workspace into manageable pieces called voxels, able to reconstruct in 3D whatever environment present. 
+
+There are several enhancements to address the several challenges specific to UAV route planning. They are specific to this type of method; infact, the application of PRM to UAV path planning has been explored by several researchers, including Hrabar \cite{improveprm}, who demonstrated its effectiveness for 3D path planning and obstacle avoidance in rotorcraft UAVs. Coming back to PRM approach, we focus on the main ones given:
+
+\begin{enumerate}
+    \item \textit{Octree-based Environment Representation}: The researches employ an algorithm using octrees, a data structure composed by eight trees most often used to partition a three-dimensional space by recursively subdividing it into other eight parts. Most often, this is used for color quantization too. This hierarchical structure allows for efficient representation of free and occupied space, crucial for rapid collision checking and path evaluation. This approach is also beneficial in environments with different levels of detail, as it can represent large open spaces efficiently and capturing the right amount of details given the complex areas using voxels to represent cubic volumes.
+
+    \item \textit{Safety-aware Sampling}: Recognizing the importance of safety in UAV operations, the enhanced PRM approach incorporates a carefully selected sampling for free voxels and selected for UAV passage, addressing safety concerns in tight spaces given bounding boxes to ensure a more reasonable distribution in the space. This improves both the quality of generated paths but also reduces the likelihood of planning dangerous routes, which may reveal infeasible.
+
+    \item \textit{Bounding Box Array}: In order to improve the efficiency of sampling, specifically when given large and big environments, the method divides the operational space into sub-regions, called bounding boxes. This allows for more focused sampling in relevant areas, reducing this way the computational overhead in vast environments.
+
+    \item \textit{Connectivity Evaluation}: Researchers introduce a method to assess connectivity between sampled nodes and ensure stability. This is important in order to create and generate paths considered feasible, accurately depicting the traversable space. The connectivity evaluation helps in creating smoother paths, more realistic and able to respect UAV's motion constraints.
+    
+\end{enumerate}
+
+There are different enhancements addressing several challenges:
+\begin{itemize}
+    \item \textit{Obstacle avoidance}: combination of the previous approaches, e.g. octree representation and safety-aware sampling ensure generated paths maintain safe distances from obstacles. This is crucial for urban environments and indoor spaces, in general where obstacles might be numerous and closely spaced.
+    \item \textit{Computational efficiency}: sampling becomes efficient in large environments, by focusing computational resources on relevant areas of the space, handling larger environments without a prohibitive increase in processing time 
+    \item \textit{Path quality}: a better connection assessment is what enhances the ability of the UAV to move in the most fluid and natural manner possible. This is key in formulating flight routes that are not only theoretically viable but also workable and efficient in terms of the real world dynamics of UAV movement.
+    \item \textit{Adaptability to different environments}: algorithms can adapt with varied type of environments, thanks again to solutions like the octree representation and bounding box approach such as open outdoor places and cluttered indoor spaces.
+\end{itemize}
+
+In real-world scenarios, the enhanced PRM method has shown promise for various applications, like for example indoor navigation and scenarios like search/rescue operations or inventory management in warehouses, given the ability of handling complex and enclosed spaces with different obstacles. In urban flight planning, where UAVs navigate through cityscapes with different structures and buildings, PRM can find efficiently feasible paths, respecting safety constraints and requirements. For terrain-following missions, such as low-altitude flights over different scenarios and landscapes, the algorithm can generate paths suitable for different situations, taking into account UAV's capabilities in the specific situations thanks to sampling and the terrain's characteristics. \\
+
+\subsection{Nature-Inspired Algorithms}
+
+In the realm of optimization and discovery of route planning techniques, nature has been a great source of inspiration for research, given the patterns, strategies and adaptability always been observed inside of natural systems, which has given rise to a plethora of different algorithms for the field. The kinds of algorithms can be categorized into two groups: \textit{evolutionary algorithms} and \textit{swarm intelligence algorithms}. The first kind of algorithms takes inspiration from genetics such as \cite{ga}, drawing from principles of natural selection and genetics with concepts like crossover, mutation and selection, or differential evolution like \cite{de}. The second kind of algorithm refers to the collective behavior of decentralized and self-organized systems, interacting locally to solve collective problems. Different algorithms are also being quoted from the paper, like particle swarm optimization \cite{pso}, ant colony optimization \cite{aco} and grey wolf optimization \cite{gwo}, mimicking the collective behavior and intelligence exhibited by swarms of animals or insects. These will be explained in further detail in a later subsection. \\
+
+\subsubsection{Grey Wolf Optimization}
+
+The Grey Wolf Optimization (GWO) algorithm, proposed by Mirjalili et al. \cite{gwo} has emerged as a prominent nature-inspired algorithm for solving optimization problems and has found usage inside of UAV route planning. The name suggests its inspiration from social hierarchy and hunting behavior of grey wolves, infact GWO wants to mimic the leadership and cooperation strategies employed by wolf packs to navigate through the space of search and locate this way optimal solutions. In this algorithm, the wolf population is divided into four hierarchical groups, divided into: alpha ($\alpha$),  beta ($\beta$), delta ($\delta$), and omega ($\omega$). The first three represent the current best three solutions found, guiding the search process, while the least one follows the lead of the other three and updates their positions accordingly. This structure enables to balance exploration and exploitation, easing the convergence towards optimality. Based on this, Zhang et al. \cite{paper4} propose an adaptive variant of the GWO algorithm (called AGWO), tailored for UAV path planning in environments which may have particular characteristics, e.g., earthquake-stricken areas. There are two key enhancements to the standard algorithm:
+
+\begin{itemize}
+    \item \textit{Adaptive convergence factor adjustment strategy}: Based on dynamically adjusting the convergence factor with the rate of change of the centrifugal distance, namely the distance between each individual and the historical best position, the algorithm can balance the capability of global and local searches very well. It allows the algorithm to conduct a wider exploration in the early stages and fine-tuning in the later stages of the search space.
+    \item \textit{Adaptive weight factor for position updating}: For the updating position, this factor considers the general convergence degree of the population. This enables the new algorithm to adapt to multi-dimensional, continuous optimization problems and enhances the capability of navigating through complex search landscapes.
+\end{itemize}
+
+Such algorithm is validated through rigorous convergence analysis, carefully revising the values of its parameters to expand the search range of to decrease the search capability, while applying comprehensive test function simulations. Furthermore, the authors demonstrate the algorithm applicability integrating it with a digital elevation map and an equivalent mountain threat model for UAV path planning. When calculating the track length to establish the performance evaluation function, the AGWO algorithm show to surpass traditional intelligent algorithms in terms of convergence precision, speed and stability, making it a robust and efficient approach for 3D trajectory optimization. The GWO algorithm and its variants have gained broad interest from the UAV route planning community. Dewangan et al. \cite{gwo_3d} use the standard GWO algorithm for 3D path planning of multiple UAVs to show its capability of handling multi-agent scenarios. Qu et al. \cite{hybrid_gwo} propose a hybrid GWO algorithm that incorporates the modified symbiotic organisms search algorithm, further enhancing the performance and adaptability of the algorithm. \\
+
+\subsubsection{Other Nature-Inspired Approaches}
+
+Besides the Grey Wolf Optimization algorithm, there are many other nature-inspired approaches that have been considerably explored for route planning of Unmanned Aerial Vehicles. Furthermore, the GWO algorithm has successfully been hybridized with other nature-inspired algorithms and techniques.
+These kinds of algorithms have gained significant attention due to the ability of efficiently explore vast search spaces, while handling non-linear constraints inside of ever-changing environments, both in type and condition. After having discussed some other algorithms, a brief description of other techniques which can be integrated for similar techniques follows:
+\begin{itemize}
+    \item \textit{Fuzzy logic}: this introduces the concept of partial truth values, ranging between 0 and 1, rather than only binary true of false. This is useful in contexts where uncertainty and imprecision must be handled and for these kinds of algorithms, this is done to dynamically adjust parameters (e.g., inertia weight) based on the current state, improving performance.
+    \item \textit{Reinforcement learning}: this type of learning involves an agent learning to make decisions and performing actions into an environment where feedback is continuously received and used to adjust future actions, this way maximizing cumulative rewards. It can also be combined with algorithms, such as ACO, to enhance their adaptability and optimality within complex environments. As an example, reinforcement learning can heuristically attempt to modify the level of pheromone in ACO using rewards, which will help in improving the balance between exploration and exploitation of the algorithm.
+    \item \textit{Multi-objective optimization}: unlike the single-objective solutions, this deals with optimizing multiple conflicting objectives at the same time, resulting in a set where no single solution is superior in all objectives. When integrated to other algorithms, this allows for the discovery of a diverse set optimal solutions, balancing different objectives and providing solutions for complex problems, for example with PSO.
+\end{itemize}
+
+In addition to the previous ones, it's important to quote two notable examples for this kind of problems: Particle Swarm Optimization (PSO) and Ant Colony Optimization (ACO). \textit{Particle Swarm Optimization}, which was introduced by Kennedy and Eberhart \cite{pso}, was inspired by the social behavior of flocks of birds or schools of fish. Particles, in PSO, are within a swarm and move around the space, while updating position and velocity based on their own best solution so far and the global best solution found so far. Simplicity, efficiency, and the fact that it is well-suited for continuous optimization problems have made PSO one of the most popular methods used for path planning with UAVs. This particular approach has been compared comparatively, highlighting its advantages in terms of computation time and solution quality, for example proposing a 3D path planning approach incorporating obstacle avoidance and smoothing techniques, as \cite{pso_3d} shows, conceptually making it a good candidate for hybridization with other algorithms. \textit{Ant Colony Optimization}, first proposed by Dorigo et al. \cite{aco}, is a metaheuristic inspired by the foraging behavior of ants, designed to find and generate a sufficient good solution for the optimization technique used. In ACO, artificial ants build the solutions by leaving pheromones on the most promising paths; these pheromones are used to bias the choices of future ants. The ability of this algorithm to handle discrete optimization problems and adapt to changes in the environment made it particularly apt for UAV route planning with multi-objectives or constrained scenarios. Both algorithms proved to have been extended to incorporate factors like fuzzy logic and multiple-objective optimization to handle uncertainties and conflicting objectives in planning. \\
+
+This particular field of algorithms continues to evolve and expand, showing that research is keen to explore novel approaches and try integrations with other techniques looking at specific missions and growth of the environment, offering a promising avenue for developing efficient and adaptable path planning solutions, learning from errors and continuously adapting traffic conditions and discovering near-optimal solutions in vast search spaces, making them a very useful tool inside of the UAV route planning toolkit.
+
+\subsection{Multi-UAV Coordination}
+
+The realm of multi-UAV coordination presents a fascinating intersection of different realms, between robotics, optimization theory and operational research. Here, different methods are explored in order to see how different algorithms would behave inside of the UAV scenario, given the presence of fewer obstacles, higher efficiency and lower cost when navigating the air. Since the UAV solutions can become increasingly more important in the future to reduce pollution, sophisticated and well-thought coordination strategies have become increasingly more important, especially in complex scenarios involving multiple objectives, dynamic environments and heterogeneous teams. The comprehensive review by Xu and Che \cite{paper2} forms the springboard for our journey into this many-faceted domain, with a dedicated focus on how TSP variants have been adapted and extended to model unique features of the UAV route planning problem, seeing how it can be solved in different scenarios and combination of fields and parameters. \\
+
+In a nutshell, coordination of multiple UAVs essentially stands for choreographing the motion and activity of more than one unmanned aerial vehicle towards accomplishing a common objective efficiently. This choreographing is everything but trivial; it needs to take into account the individual UAVs' capabilities, the mission objectives, environmental constraints, and emergent behavior of the overall system. This challenge has driven the researchers to draw inspiration from many disciplines, weaving a rich tapestry of approaches which contrasts classical optimization techniques with the most modern methods of artificial intelligence. 
+
+The immediate natural transition from single-agent to multi-agent route planning extended the classic TSP (studied in multiple scenarios to understand each time how to solve the problem) into \textit{MTSP (Multiple)}, considering $m$ passengers traveling $n$ cities and visiting all of them once; this way, it's natural to model scenarios where multiple drones must collectively visit a set of targets while optimizing various criteria, e.g. distance traveled, mission completion time, energy consumption. This opens entirely new dimensions of complexity and opportunities that enable the modeling of scenarios where numerous drones have to visit a set of targets collectively for some given criteria, such as the total distance traveled, mission completion time, or energy consumption.
+The mathematical formulation of MTSP for UAV applications provides a structured framework, but there is an important computational hurdle. With an increase in the number of UAVs and targets, the solution space has grown exponentially; hence, exact methods are practically not feasible for all but smallest-sized instances. This further makes the development of innovative approximation algorithms and heuristic approaches computationally intractable. \\
+
+The MTSP provides a formulation which is a flexible framework for modeling complex UAV missions, introducing new challenges in how to effectively group and allocate tasks among the UAVs, making passenger pass through the same city multiple times. The Vehicle Routing Problem develops a similar concept further: goods are transported from warehouses to different customers with various quantities. Within the context of UAVs, such a problem may be package delivery or data collection over multiple sites. According to the authors, one may consider TSP as a special case of VRP since the nature of the relationship between such problem formulations is hierarchical. As a matter of fact, these problems become more and more complex. Because of the exponentially increasing solution space with an increasing number of UAVs and targets, only the smallest instances are such that exact methods can be applied to them. This computational intractability stimulates the development of some new effective approximation algorithms and heuristics. Xu and Che identify several key challenges in multi-UAV coordination, each presenting unique complexities in the realm of UAV route planning:
+
+\begin{itemize}
+    \item \textit{Grouping and Task Allocation}: in general, the difficulty of MTSP lies in the effective grouping of the urban agglomerations or targets and their assignment to different UAVs, particularly problematic when heterogeneous UAV teams that have different capabilities. For example, some fly longer at slower speed, others vice-versa; each with their constraint on payload capacity. This is a very complicated problem; the allocation has to take into account not only the spatial distribution but also specific attributes of each UAV. The strategy of grouping must ensure that there is a balanced workload across the fleet of UAVs in order not to overload some at the expense of others. This problem becomes exponentially intractable with the number of targets and UAVs, hence requiring sophisticated algorithms which can efficiently partition the mission space while respecting individual UAV constraints.
+
+    \item \textit{Multi-objective Optimization}: In general, the MTSP and VRP in UAV contexts usually have multiple, often conflicting, objectives at play. Examples include minimization of the total distance flown, which can be in conflict with minimizing energy consumption since the shortest path might involve maneuvers requiring more energy. Another key factor can be risk exposure: In many scenarios, such as military or disaster response, flying the safest route is not always necessarily the most efficient. Adding further complexity, the time of mission completion may have to make tradeoffs between thoroughness and speed. Such a balance necessarily requires advanced optimization techniques capable of managing multidimensional cost functions, so to find a solution that best balances these competing objectives in accordance with the mission priorities.
+
+    \item \textit{Dynamic Environments}: Real-world UAV operations generally consist of dynamically changing environments that require routing strategies which may change based on new information or changes in conditions. This can be in the form of obstacles that suddenly appear, such as sudden weather patterns in an aerial survey; targets that are moving, like in search and rescue operations; and newly appearing no-fly zones. The routing algorithm should be able to replan in real time and change mission parameters on the fly, without necessarily affecting the overall mission objective. That requires high-speed computation but, in the same instance, strong decision algorithms that are able to handle uncertainty and incomplete information.
+
+    \item \textit{Coordination Constraints}: In applications like where carries have to cooperate (variant of the TSP problem called Cooperative Carrier-Vehicle Traveling Salesman Problem - CV-TSP), there are also additional coordination constraints between vehicles, which may include synchronization constraints-for example, two UAVs need to arrive at one location at the same time for a joint task-precedence constraints, where some targets must be visited in a certain order, or resource-sharing constraints: UAVs may have to meet in order to transfer payloads or to recharge. Such constraints significantly complicate the routing problem due to the temporal dependencies introduced in the paths of various UAVs. 
+\end{itemize}
+
+Owing to these issues, the researchers applied various solution methods to solve these issues. In that respect, Xu and Che discuss several solution methods and put great emphasis on meta-heuristic algorithms for the solution of such complex problems. Due to the fact that MTSP and VRP are NP-hard, metaheuristics offer a flexible framework for balancing exploration and exploitation in the huge solution space of multi-UAV routing problems. The authors highlight several key algorithmic approaches, each with its unique strengths (some of them were already met and discussed in a previous subsection):
+
+\begin{itemize}
+    \item \textit{Gravitational Search Algorithm (GSA)}: Inspired by the law of gravity and mass interaction s, GSA has shown promise in solving complex optimization problems, modeling potential solutions as objects with masses, where the gravitational force between these objects guides the search process. In UAV routing, GSA can handle multi-dimensional optimization problems, while adapting well to scenarios with multiple objectives and constraints to respect.
+    
+    \item \textit{Genetic Algorithms (GA)}: GAs have been widely applied to MTSP and VRP variants in UAV applications, inspired by principles of natural selection. Generally, GAs are robust methods that can handle multi-objective optimization problems. Strong global search methods like GAs can easily handle large solution spaces, and problem-specific knowledge is easily integrated by the use of custom genetic operators. GAs will evolve complex flight patterns satisfying many constraints in their quest to optimize multi-objectives for UAV routing.
+    
+    \item \textit{Ant Colony Optimization (ACO)}: The ACO algorithm has adapted ant colony behaviors to achieve good performance, especially on adaptive path planning problems of UAV routing. The power of ACO is in searching for near-optimum solutions over dynamic environments, making it particularly applicable to real-time UAV coordination. By using pheromones, it can quickly adapt to changes, and, thus, this method is very applicable to a dynamic UAV mission.
+    
+    \item \textit{Neural Networks (NN)}: Artificially intelligent NNs are brain-inspired computational models that were developed to recognize patterns and learn from data. They form the basis of complex, nonlinear processes in which data is systematically fed into layers of nodes interconnected by neurons to make predictions or decisions. The application of neural networks has been promising in terms of complex pattern learning and real-time decision-making in UAV coordination. NNs can be trained using historical mission data to predict optimal routes or make rapid decisions in complex situations. Considering nonlinearities, they become quite helpful for modeling intricate dynamics within multi-UAV systems.
+\end{itemize}
+
+These algorithms are also flexible to model complex constraining and multi-objective optimization problems that generally appear in UAV applications. However, Xu and Che note that no single algorithm is universally superior; hence, hybrid approaches remain one of the trends whereby several algorithms are combined to leverage from their respective strengths. For instance, for a hybrid like GA-ACO, the global solution could be offered by genetic algorithms, while ACO can be used for the local refinement of the routes. 
+
+Similarly, in a combination of NN-GSA, neural networks could be used to make quick decisions and GSA for mission-wide optimization. It does so by reformulating MTSP into a single vehicle GTSP (Generalized Traveling Salesman Problem), using transformation techniques into a standard TSP. This smart reformulation allows applying well-established TSP solvers in multi-UAV problems, which can be computationally advantageous in certain scenarios. The transformation method is quite handy when teams of heterogeneous UAVs need to be dealt with, as it can encapsulate vehicle-specific constraints within the GTSP formulation.
+
+The authors emphasize that clustering techniques can be used to group targets before applying routing algorithms in each cluster for large-scale problems. This sort of divide-and-conquer approach may have significant reductions in computational complexity, although possibly at some cost in terms of global optimality. Clustering can be particularly effective if there are natural geographical divisions or if there are several UAVs of different capabilities, which are best suited to specific tasks or regions. \\
+
+Looking at the future, Xu and Che's review suggests promising research directions, particularly integrating route planning with advances sensing, e.g., 5G communications, IoT sensors and technologies informing dynamic route adjustments and enabling more sophisticated swarm behaviors.  Once again, it's notable how developing hybrid algorithm which can quickly adjust routes in response to new information or changing missions parameters, considering always recharging, battery swapping and factors or navigation like wind patterns, payload weight, and varying power requirements for different mission phases.
+
+The authors further pinpoint the issues of heterogeneous team coordination, development of scalable algorithms for large-scale problems, and advancement of human-swarm interaction. In addition to the above, enhancing resilience and fault tolerance in UAV systems represents a critical area for future research.
+Taken together, these directions point to a future of ever-smarter, autonomous UAV systems capable of attacking real-world challenges with unprecedented efficiency. The work underlines the transformative potential of the UAV in areas ranging from logistics and search and rescue to environmental monitoring, while emphasizing the need for further innovation of multi-UAV coordination algorithms if this potential is to be met.
+
+\subsection{Environment-Specific Approaches}
+
+The evolution of UAV route planning algorithms has increasingly recognized the importance of tailoring approaches to specific operational environments, acknowledging the fact general-purpose algorithms may offer broad applicability, falling short in addressing the unique challenges posed by particular terrains or mission profiles. A notable exemplar of this specialized approach is the work of Yao et al. \cite{paper5}, which presents an interesting approach to a problem occurring in reality: the efficient search of a lost person or object using drones (UAVs), to increase the possible chances of survival through domain-specific optimization.
+
+Yao et al.'s approach is predicated on the unique characteristics of river search scenarios, where the search space is predominantly linear, including branches and confluences. The key idea is to make the search smarter using probability: instead of having drones sweeping the entire river, prior information is used to guess where the target is most likely to be, representing an accurate and updated probability map. The authors do this by using a \textit{Gaussian Mixture Model (GMM)} to approximate the prior likelihood distribution of target locations along the river. This is a statistical model used to describe a set of data blending multiple distributions, so to represent groups and patterns into clusters of data, normalizing the perception by different sources. This method represents a departure from traditional grid-based or continuous space representations, offering a more nuanced and computationally efficient approach into the search space modeling. Infact, "hotspots" are identified as areas where the target is most likely to be and, by using a method called Approximation Insertion (AI), areas are prioritized according on how likely is the target to be there and how far the drone has traveled up to that point, allocating prioritized areas among multiple drones if more than one is available and adjusting the routes by adding/removing waypoints as needed. \\
+
+This GMM approach allows a more dynamic and adaptive representation of the probability landscape. It can model simple to complex distributions of probability along the river by easily tuning the number and parameters of the Gaussian components. This adaptiveness is of especial value in real-world scenarios where historical data may influence target presence likelihoods with significant variations in accessibility or water flow characteristics for different segments along a river. The key innovation, as identified earlier, consists of developing a method of Approximation Insertion for prioritization and sequencing of high-value river segments, which the GMM would have identified. This approach elegantly balances the two objectives: maximizing the detection probability while keeping UAV travel time to a minimum. It iteratively constructs a search route by strategically inserting or appending new segments into the existing sequence with respect to both possible reward-each related to the detection probability-and cost-related to travel time-for every candidate insertion. \\
+
+The key innovation is represented by the Approximation Insertion (AI) method, able to prioritize and sequence the high-value river segments identified by the GMM, so to balance the dual objectives, constructing iteratively a search route by strategically inserting or appending new segments to the existing sequence, considering potential reward (in terms of detection probability) and associated cost (in terms of travel time). This allows to naturally handle the linear topology while accommodating the potential need for backtracking, becoming flexible for river-specific constraints like flow direction or navigational hazards. Yao et al. address the critical aspect of mission time constraints by proposing a novel positive/negative greedy method for dynamic adjustment of the search plan, thereby providing the ability to fine-tune the route by expansion into high-probability areas with available additional time or by contraction from low-probability regions when the planned route exceeds time constraints. This adaptiveness of the method is highly desirable in river search operations, when environmental factors-a speed of the current, or variations in the water level-can affect greatly the travel times and require changes in route choice in real time. \\
+
+Via comprehensive simulations, the efficacy of this environment-specific approach is substantiated, comparing the GMM-AI method against several baseline strategies, e.g., greedy and random-sequencing approach. These results highlight the method with a better outcome in terms of cumulative detection probability, especially at smaller time scales. The most striking point, however, is that this kind of approach puts up robust performances for very different geometries of rivers and probability distributions, hence proving its adaptability to various river search scenarios. 
+These results really bring out the method with a better outcome in terms of cumulative detection probability, especially at smaller time scales. The most striking point is that this kind of approach puts up robust performances for very different geometries of rivers and probability distributions, hence proving its adaptability to various river search scenarios.
+
+However, the limitations of Yao et al.'s current implementation need to be acknowledged. It is far from obvious that this supposition of a stationary target is suitable when targets are in movement, for example vessels drifting by some current or runaway persons. The restriction to single-UAV operations leaves many issues open with respect to optimal coordination in the context of multi-UAV river search missions. For example, the method does not take into account dynamic environmental changes, such as wind and other weather phenomena, which may occur in practice to a great degree, as well as variable conditions regarding visibility.
+
+This will be accomplished by leveraging domain knowledge and tailoring algorithms to the special characteristics of the operational environment that will enable the development of significantly more effective and efficient planning strategies.
+
+\subsection{Military Applications: Real-Time and Dynamic Planning}
+
+The application of UAV route planning in military contexts presents unique challenges which can make it distinguish from civilian use. In this case, these environments are frequently hostile and these scenarios are characterized by rapid changes and threats, with stringent constraints. In this phase, real-time planning and decision-making are fundamental, since in a battlefield conditions can change within seconds, requiring UAVs to dynamically adjust their routes to avoid emerging threats and tasked to control and satisfy multiple objectives at the same time. The UAVs have to be equipped with algorithms that will consider the continuous evaluation of the environment for the determination of possible threats and, correspondingly, the optimization of flight routes. Advanced sensing technologies must, therefore, be integrated with real-time processing of data using sophisticated decision-making algorithms which weigh multiple factors. What is more, Military UAVs should be able to recalibrate their missions regarding new orders, unexpected mission-critical events, or shifts in strategic priorities. \\
+
+Royset et al. \cite{paper1} proposed a constrained shortest-path (CSP) method for routing military aircraft in the presence of threats such as surface-to-air missiles (SAMs). This variant of the problem which focuses solely on minimizing a single metric, CSP involves finding a path between two vertices not only to a primary objective (e.g., risk/cost), but also adhering to one or more secondary constraints (e.g., time, fuel consumption, resource usage), while SAMs are critical in targeting and neutralizing risks posed to aircraft systems.
+
+Inside of the model proposed by the paper, the relevant airspace is discretized into a grid of vertices representing possible waypoints, interconnected by directed edges representing flight segments. This model strives to find a minimum-risk route while satisfying the constraints on fuel consumption and flight time. The risk of intercepting a SAM then forms part of the cost function of each edge within the model that the CSP algorithm is trying to minimize, while still keeping within the constraints on fuel and time (so, minimizing risk while taking into account secondary constraints). \\
+
+This discretization allows for the incorporation of various mission-critical factors:
+
+\begin{itemize}
+    \item Terrain avoidance and terrain-masking of enemy radar
+    \item Variable flight speeds for improved threat avoidance
+    \item Multiple side constraints (e.g., fuel consumption, flight time)
+    \item Arbitrary number and type of ground-based threats
+\end{itemize}
+
+The authors, to incorporate such, employ a novel algorithm termed \textit{LRE (Lagrangian Relaxation and Enumeration)}, which combines the optimization technique of Lagrangian Relaxation (able to simplify difficult constraints adjust multipliers in common operations, called infact Lagrange multipliers, allowing for easier computation of solutions or bounds), iteratively adjusting multipliers to find tighter bounds and narrowing the search space, so to handle large-scale problems in a short amount of time, "relaxing" the constraints. The algorithm is considered efficient, since:
+\begin{itemize}
+    \item It can handle problems with over $100000$ vertices and edges, working on up to ten side constraints, typically in a few minutes on a personal computer
+    \item It allows to aggressively reduce the workload on the network by eliminating edges that cannot lie on optimal paths
+    \item It easily incorporates turn-radius constraints (calculated paths are easy to follow without involving sharp turns or difficult maneuverability) and round-trip routing (often necessary to plan routes ensuring a safe return point adhering to constraints)
+\end{itemize}
+
+Unlike previous label-setting algorithms, the ability to reduce work on the network as a pre-processing step is key, since it allows to identify and remove edges that cannot life on an optimal path without significantly increasing computational complexity. The LRE algorithm's performance is demonstrated through experiments conducted on minimum-risk routes through enemy airspace (F/A strike mission) and medium-altitude UAV performing battle damage assessments (UAV surveillance missions), both incorporating particular scenarios both sort/long range in different risk areas at diverse levels of speeds. \\
+
+Myers et al. \cite{ref2} propose a real-time network approach for UAV route planning with obstacles and flight dynamics. Their method focuses on being fast and practically implementable-two critical elements in dynamic military environments. Authors model the operational field as a plane comprising bases, targets, and polygonal obstacles, by which the battlefield representation is more realistic compared to simple grid-based models.
+
+The authors develop a procedure to create a network representation of the operational field. This process efficiently handles obstacle-defining edges and open space edges, using a flat Earth approximation for computational efficiency. In this model, several concepts are introduced:
+
+\begin{itemize}
+    \item The concept of \textit{pseudonodes} to incorporate flight dynamics and introduce realistic modeling of aircraft turning behavior by considering incoming and outgoing flight directions. These are not actual field locations but conceptual nodes representing points where an aircraft might need to adjust its headings/turns.
+
+    \item The use of a path model based on \textit{Dubins' curves}, which describe the shortest possible path between two points for a vehicle that has a minimum turning radius and moves forward at a constant speed. Such paths can be seen as a combination of straight lines and circular arcs, which are the most basic maneuvers a vehicle with a turning radius can make. This model is well-suited for UAVs, as they cannot make sharp turns like ground vehicles due to their flight dynamics. They are used to approximate minimum distance paths that an aircraft can follow, using a so-called \textit{Haversine distance} to calculate precisely shortest distance between two points on the surface of Earth given latitudes and longitudes, since Dubins' curves do not directly account for Earth's curvature and scale the flight times realistically.
+
+    \item An adaptation of Dijkstra's algorithm to work with pseudonodes, designed to find an optimal paths while respecting constraints imposed by flight dynamics. Instead of initializing all nodes, only the source, target, and pseudonodes are included in the initial set. This focuses the search on relevant parts of the network. When expanding nodes, the algorithm considers incoming directions (pseudonodes) to then determine valid outgoing directions. This ensures unrealistic sharp turns are not included in the path. The cost of moving is calculated based on the previous Dubins' model then scaled accurately on the actual flight cost, constructing the final path by traversing through pseudonodes and ensuring the route is flyable.
+    
+\end{itemize}
+
+The authors back their method with experiments that prove its efficacy. The most complex scenario involving $30$ targets and $3$ obstacles was solved by the algorithm in roughly one second. While this is indeed impressive and implies room for real-time applications, it has to be considered that in more complex real-world military scenarios, an even greater number of targets and obstacles may be involved, along with dynamic threats. For such scenarios, this algorithm has not been fully explored regarding its scalability.
+Myers et al. demonstrate the incorporation of realistic aircraft behavior is essential by examining path changes and differences in flight times. However, no quantitative comparison of these differences is made in the paper-some measures of the improvement of route efficiency or mission success probability would be an important addition.
+
+While the method has shown promise, several limitations are worth critical examination.
+
+\begin{itemize}
+    \item Assuming constant altitude may not hold in many military scenarios, so varying it can be crucial in terms of threat avoidance, terrain masking, and fuel efficiency.
+    
+    \item Unlike other approaches, like \cite{ref1}, this method does not explicitly model threat levels, so to actually quantify and respond to different levels of threats. This simplification might limit the applicability in environments where higher risk is posed.
+    
+    \item Focus on UAV single routing does not consider scenarios where coordination is involved, increasingly common in normal military scenarios. These test scenarios certainly show the algorithm to be very fast; how well they reflect real-world military complexity is unknown. More varied, possibly historically-derived mission data-based, scenarios could validate the practical utility of the method in a more convincing way.
+    
+\end{itemize}
+
+Even with these limitations, the work by Myers et al. does constitute a serious contribution to the field of military UAV route planning. The focus on real-time computation with flight dynamics modeling makes it very useful as a basis for creating practical and field-ready systems. 
+
+Both approaches seem to have different problems to tackle:
+\begin{itemize}
+    \item While both consider the factor of threat avoidance, neither in its entirety deals with the rapidly changing landscapes of threats prevalent in combat situations. Military applications will require integration of real-time intelligence and sensor data into routing decisions.
+        \begin{enumerate}
+            \item Royset et al.'s CSP methodology incorporates the SAM threats into their network model only as costs on the edges. Their methodology then utilizes a static threat environment for the duration of a mission. While the LRE algorithm is quite fast and efficient when run on large-scale problems, it may not be appropriate for fast updating of threats. How quickly new information about threats can be integrated into their model without having to recalculate totally the optimal path is not clear.
+            \item Given these computation times, the approach of Myers et al.  would seem better positioned to handle dynamic environments in real time. They address "pop-up" targets, which can be extended for new threats, potentially. Their method, however, does not explicitly model the varying threat levels or detail how the overall route optimization will be affected in case of sudden changes in the threats.
+        \end{enumerate}
+    \item Both works deal with single-UAV routing, while most military tasks require the operation of heterogeneous UAVs in coordinated teams. How well these algorithms will scale to multi-UAV scenarios is yet an open issue.
+        \begin{enumerate}
+            \item Royset et al.'s is a holistic approach to modeling constraints and thus conceivably extendable to the multi-UAV case. Their method of dealing with a multitude of constraints would easily extend to include coordination constraints between UAVs. However, solving multiple CSPs at the same time could be computationally burdensome.
+            \item Although quicker, Myers et al.'s approach does not consider multi-UAV coordination at all, and their network model would need to be radically changed to accommodate the interdependencies of multiple UAV paths.
+        \end{enumerate}
+    \item Only the approach by Myers et al. now allows computation times that could support mission recalibration, and neither paper addresses how its algorithms would work in case of a sudden change of either mission parameters or strategic priorities.
+        \begin{enumerate}
+            \item Probably in this respect, the work of Royset et al. with multiple constraints provides a framework that can be adapted to changing mission parameters by assigning changing weights according to shifting priorities among risk, fuel consumption, and time. However, the paper does not address issues of the speed with which such changes might be instantiated or the impacts on ongoing missions.
+            \item Given that Myers et al.'s computation times are faster, their work would hint toward better potentials for real-time mission adaptability. Their paper does not discuss, though, how their network model could handle upsets in mission objectives or constraints.
+        \end{enumerate}
+\end{itemize}
+
+In the end, Royset et al. and Myers et al. are major steps forward in the process of UAV route planning for military purposes, with different merits and points of interest that will be further developed in critical areas by subsequent research. While Royset et al. introduce the CSP method with an LRE algorithm that offers an overall conceptual framework for dealing with multiple constraints and complex environments of threats, Myers et al.'s real-time approach provides the speed and adaptability needed in dynamic military scenarios.
+
+However, both are still incomplete toward fully satisfying such entailed complex necessities of threat intelligence in real time, multi-UAV coordination, mission adaptability, and advanced sensing capabilities within military UAV operations. The ultimate goal here is the development of robust, adaptable, and efficient routing algorithms able to perform well in the dynamically hostile environments typical of military operations. This would require more interdisciplinary cooperation from experts in operations research, computer science, aerospace engineering, and military strategy.
+
+\section{Summary and Future Challenges}
+
+This survey has provided a comprehensive overview of UAV route planning strategies for complex environments. We have explored a wide range of approaches, from classical algorithms to state-of-the-art nature-inspired and probabilistic methods, each offering unique strengths in addressing the multifaceted challenges of UAV path planning. A comprehensive table summarizing the approaches and algorithms discussed is present in \ref{tab:uav_comparison}.
+
+\begin{table}[ht]
+\centering
+\caption{Comparison of UAV Route Planning Algorithms}
+\label{tab:uav_comparison}
+\renewcommand{\arraystretch}{1.2}
+\small
+\begin{tabular}{|p{1.5cm}|p{1.5cm}|p{1.4cm}|p{1.7cm}|p{2.3cm}|}
+\hline
+\textbf{Algorithm} & \textbf{Type} & \textbf{Complexity} & \textbf{Scalability} & \textbf{Best Use Case} \\
+\hline
+Dijkstra & Classical & $O((V+E)\log V)$ & Moderate & Static environments \\
+\hline
+A* & Heuristic & $O(b^d)$ & High for small spaces & Complex environments \\
+\hline
+PRM & Probabilistic & Variable & High & 3D navigation with obstacles \\
+\hline
+RRT & Probabilistic & Variable & High & Fast motion planning \\
+\hline
+GWO & Nature-inspired & Variable & Moderate & Multi-objective optimization \\
+\hline
+PSO & Nature-inspired & Variable & High & Dynamic UAV path planning \\
+\hline
+ACO & Nature-inspired & $O(n^2)$ & Moderate & Real-time adaptive pathfinding \\
+\hline
+GA & Evolutionary & Variable & Low for large problems & Multi-objective, constrained tasks \\
+\hline
+Bellman-Ford & Classical & $O(VE)$ & Moderate & Distributed multi-UAV operations \\
+\hline
+Floyd-Warshall & Classical & $O(V^3)$ & Low & Pre-mission all-pairs shortest path planning \\
+\hline
+RRT* & Probabilistic & Variable & High & Optimal motion planning \\
+\hline
+Differential Evolution & Evolutionary & Variable & Moderate & Global optimization in UAV routing \\
+\hline
+\multicolumn{5}{l}{\small Where: $V =$ vertices, $E =$ edges, $b =$ branching factor, $d =$ depth of solution}\\
+\end{tabular}
+\end{table}
+
+Some promising directions are identified looking ahead: the integration of classical optimization methods with machine learning techniques for more adaptive and intelligent routing, advances in sensing technologies, and IoT integration promise to help increase situational awareness for UAVs, thus enabling more responsive and context-aware path planning. Scalable algorithms remain an open and challenging problem for large-scale, heterogeneous UAV teams.
+
+After all, the present conjunctions and connections in the field of UAV route planning is indeed exciting. Algorithmic innovations combined with domain-specific insights and technological advances are together opening up possibilities toward which UAV systems can be envisioned with unprecedented levels of autonomy and efficiency. While such systems are perpetually refined, they have been purported to transform industries, improve public safety, and really push the boundaries on the future of aerial robotics.
+
+The road ahead is thus full of challenges. Ethical issues, regulatory frameworks, and public acceptance will all be important modulators of the future of UAV technologies. Furthermore, with UAVs increasingly sharing our skies, there is an urgent need for robust fail-safe systems operating in often inhospitable and uncontrollable environmental conditions.
+
+In this regard, the area of route planning in the case of a UAV is at the forefront of research, like most applications. While we push the envelope on all fronts, these algorithms and strategies will organically grow through this survey, adapting and giving way to new paradigms. In the future, the question of route planning for UAVs is no longer to identify the optimal path, but rather to develop intelligent, adaptive systems that are easily integrated into our complex world and further our capabilities in opening new frontiers in aerial autonomy.
+
+
+\begin{thebibliography}{00}
+
+\bibitem{paper1} Sathyaraj, B.M., Jain, L.C., Finn, A. et al. Multiple UAVs path planning algorithms: a comparative study. Fuzzy Optim Decis Making 7, 257–267 (2008). https://doi.org/10.1007/s10700-008-9035-0
+
+\bibitem{paper2} Y. Xu and C. Che, "A Brief Review of the Intelligent Algorithm for Traveling Salesman Problem in UAV Route Planning," 2019 IEEE 9th International Conference on Electronics Information and Emergency Communication (ICEIEC), Beijing, China, 2019, pp. 1-7, doi: 10.1109/ICEIEC.2019.8784651
+
+\bibitem{paper3} Fei Yan, Yi-Sha Liu and Ji-Zhong Xiao. Path Planning in Complex 3D Environments Using a Probabilistic Roadmap Method. International Journal of Automation and Computing, vol. 10, no. 6, pp. 525-533, 2013. DOI:  10.1007/s11633-013-0750-9
+
+\bibitem{paper4} Zhang, Wei \& Zhang, Sai \& Wu, Fengyan \& Wang, Yagang. (2021). Path Planning of UAV Based on Improved Adaptive Grey Wolf Optimization Algorithm. IEEE Access. PP. 1-1. 10.1109/ACCESS.2021.3090776. 
+
+\bibitem{paper5} P. Yao, Z. Xie and P. Ren, "Optimal UAV Route Planning for Coverage Search of Stationary Target in River," in IEEE Transactions on Control Systems Technology, vol. 27, no. 2, pp. 822-829, March 2019, doi: 10.1109/TCST.2017.2781655.
+
+\bibitem{ref1} Royset, Johannes \& Carlyle, Matt \& Wood, R.. (2007). Routing Military Aircraft With A Constrained Shortest-Path Algorithm. 10.5711/morj.14.3.31. 
+
+\bibitem{ref2} Royset, Johannes O., W. Matthew Carlyle, and R. Kevin Wood. “Routing Military Aircraft With A Constrained Shortest-Path Algorithm.” Military Operations Research 14, no. 3 (2009): 31–52. http://www.jstor.org/stable/43941198.
+
+\bibitem{dijkstra} Dijkstra, E.W. A note on two problems in connexion with graphs. Numer. Math. 1, 269–271 (1959). https://doi.org/10.1007/BF01386390
+
+\bibitem{astar} Hart, P.E., Nilsson, N.J. and Raphael, B., 1968. A formal basis for the heuristic determination of minimum cost paths. IEEE transactions on Systems Science and Cybernetics, 4(2), pp.100-107.
+
+\bibitem{originalprm} Kavraki, L.E., Svestka, P., Latombe, J.C. and Overmars, M.H., 1996. Probabilistic roadmaps for path planning in high-dimensional configuration spaces. IEEE transactions on Robotics and Automation, 12(4), pp.566-580.
+
+\bibitem{improveprm} Amato, N.M. and Wu, Y., 1996. A randomized roadmap method for path and manipulation planning. In Proceedings of IEEE International Conference on Robotics and Automation (Vol. 1, pp. 113-120). IEEE.
+
+\bibitem{probprm} A. Dogan, "Probabilistic approach in path planning for UAVs," Proceedings of the 2003 IEEE International Symposium on Intelligent Control, Houston, TX, USA, 2003, pp. 608-613, doi: 10.1109/ISIC.2003.1254706.
+
+\bibitem{ga} Holland, J. H. (1992). Adaptation in natural and artificial systems: an introductory analysis with applications to biology, control, and artificial intelligence. MIT press.
+
+\bibitem{de} Storn, R., \& Price, K. (1997). Differential evolution–a simple and efficient heuristic for global optimization over continuous spaces. Journal of global optimization, 11(4), 341-359.
+
+\bibitem{pso} Kennedy, J., \& Eberhart, R. (1995). Particle swarm optimization. In Proceedings of ICNN'95-international conference on neural networks (Vol. 4, pp. 1942-1948). IEEE.
+
+\bibitem{aco} Dorigo, M., Maniezzo, V., \& Colorni, A. (1996). Ant system: optimization by a colony of cooperating agents. IEEE Transactions on Systems, Man, and Cybernetics, Part B (Cybernetics), 26(1), 29-41.
+
+\bibitem{gwo} Mirjalili, S., Mirjalili, S. M., \& Lewis, A. (2014). Grey wolf optimizer. Advances in engineering software, 69, 46-61
+
+\bibitem{gwo_3d} Dewangan, R. K., Shukla, A., \& Godfrey, W. W. (2019). Three dimensional path planning using grey wolf optimizer for UAVs. Applied Intelligence, 49(6), 2201-2217.
+
+\bibitem{hybrid_gwo} Qu, C., Gai, W., Zhang, J., \& Zhong, M. (2020). A novel hybrid grey wolf optimizer algorithm for unmanned aerial vehicle (UAV) path planning. Knowledge-Based Systems, 194, 105530.
+
+\bibitem{pso_3d} Fu, Y., Ding, M., Zhou, C., \& Hu, H. (2013). Route planning for unmanned aerial vehicle (UAV) on the sea using hybrid differential evolution and quantum-behaved particle swarm optimization. IEEE Transactions on Systems, Man, and Cybernetics: Systems, 43(6), 1451-1465.
+
+\end{thebibliography}
+
+\end{document}
