@@ -1,5 +1,3 @@
-Certainly! Here's a comprehensive README in Markdown format for your GitHub repository:
-
 # UAV Route Planning Strategies for Efficient Coverage Search in Complex Environments
 
 ## Overview
