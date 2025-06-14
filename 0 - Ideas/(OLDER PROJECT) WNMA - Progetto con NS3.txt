@@ -1,0 +1,512 @@
+WNMA - Progetto con NS3
+Repository progetto
+https://github.com/gabrielrovesti/WNMA-Project
+Idea progetto
+Trasmissioni a livello MAC/fisico usando solo SIFS
+- Test con poche connessioni (funzionerà bene)
+- All’aumentare delle connessioni, aumenteranno le collisioni (funzionerà peggio)
+Due opzioni:
+1) Senza contention window
+2) Con contention window fissa
+- che poi varia a seconda della misura da testare
+Idee Nicola:
+- Uso del protocollo esistente (802.11 MAC classico) e modificarlo
+- Usando soltanto SIFS
+- Togliendo proprio l’utilizzo di altri parametri DIFS/PIFS
+- Oppure utilizzo di un protocollo come CSMA
+
+NS-3
+Documentazione
+- https://www.nsnam.org/docs/tutorial/html/
+- ns-3 Tutorial.pdf
+Compilazione ed esecuzione
+I file vengono compilati dentro la cartella “
+scratch
+”, che sta dentro 
+ns3.41 
+- contiene i
+makefile e un simulatore da implementare da zero)
+- Crei lì la cartella col tuo file .
+cc 
+(nota: questi file contengono il main e i comandi di
+run)
+- Ad esempio prendiamo il file “
+tutorial/examples/first.cc” 
+e lo spostiamo lì
+dentro
+Da zero
+I passi esatti sono questi (sostituire “
+first
+” con il nome del file desiderato):
+> ./ns3 clean 
+(run pulita) - opzionale
+> ./ns3 configure --build-profile=optimized --enable-examples
+--enable-tests 
+(comando completo)
+- in alternativa (comando classico)
+> ./ns3 configure
+- se tutto va bene scrive “Configuring done”
+> ./ns3 build 
+(con la cache ci mette poco)
+(note that if you build your program in the 
+scratch 
+directory you must run it out of the
+scratch 
+directory - non mettere “first.cc” ma solo “first” avendo fatto la build prima)
+> ./ns3 run scratch/first
+(per run senza build semplicemente)
+> ./ns3 run –-no-build scratch/first
+Dopo aver buildato almeno una volta, anche con modifiche, basta semplicemente salvare il
+codice e lanciare una nuova run.
+> ./ns3 run scratch/first
+Normale
+(Assumendo il/i file 
+.cc 
+di interesse si trovi/trovino già nella cartella “
+scratch
+” con
+modifiche):
+> ./ns3 configure
+> ./ns3 build
+> ./ns3 run scratch/nomefile
+
+Idea di come procedere
+1. Usare branches il cui nome sia legato a una funzionalità
+2. Uguale per i commit, dargli sempre un nome che spieghi cosa fanno (questo ci
+facilita quando dobbiamo mettere mano al codice)
+3. Facciamo uno script che supporti i parametri da linea di comando
+○ così per aumentare il numero di nodi non dobbiamo creare un altro script
+○ sarebbe anche utile farlo con i timing parameters, difs, pifs e sifs..
+Ovviamente prima facciamo qualcosa che funziona e poi puliamo il codice
+parametrizzando.
+4. Idealmente possiamo fare un semplice script con una topologia con ap e nodi. Con
+l’uso di parametri possiamo cambiare i nodi. Plottiamo e vediamo se funziona.
+Ovviamente questa è la parte più rognosa, ma dopo si va in discesa.
+○ a questo punto iniziamo a divertirci con le modifiche di difs, pifs e
+compagnia cantando
+5. A questo punto poi si sente Palazzi per capire se gli basta o se si inventa altre cose
+da aggiungere dovesse valutare che è troppo semplice o che l'approccio di
+eguagliare sifs pifs e difs non vada bene.
+Punti da snocciolare
+1. Protocollo wireless da usare
+2. 
+rraa 
+e 
+rrpaa 
+possono andare bene per testare? Ci sfugge qualcosa?
+3. cosa plottare? Qual è il dato che ci interessa? Le collisioni?
+4. topologia?
+Nuove cose imparate dalle slide del buon Palazzi
+1. I pifs vengono usati solo dal MAC-PCF
+2. MAC-DCF CSMA/CA è obbligatorio in 802.11, e usa solo sifs e difs
+a. RTS/CTS sono opzionali e possono essere attivate
+Sarebbe interessante fare i test sia con AP che con ad-hoc peer to peer. Con la seconda
+forse è anche più facile che si verifichino le collisioni.
+Al momento mi terrei sul basic. Usiamo solo CSMA/CA e proviamo a eliminare i difs.
+Considerazioni
+Alla fine difs e pifs agiscono solo sulla priorità. Ad esempio danno priorità agli ack o alle
+request to send or clear to send (se usate). Poi per evitare le collisioni c’è il meccanismo del
+backoff. Però non è sufficiente perché aspettare per brevi periodi potrebbe portare a
+collisioni. Nel caso di pochi nodi potrebbe migliorare le prestazioni della rete.
+Usando solo difs invece (aumentando il valore) si dovrebbero avere meno collisioni ma si
+aumenta l’idle time e si peggiora in throughput. In ad-hoc network dovrebbe anche
+peggiorare il problema dell’hidden terminal. Quindi latenza maggiore e generale riduzione
+delle prestazioni ma diminuendo le collisioni.
+
+Informazioni fresche 07/2024
+La mia idea era di impostare difs e sifs sullo stesso valore solo che i sifs si possono
+impostare ma i difs sono calcolati automaticamente in base al valore dei sifs a al time slot.
+Non riesco a trovare dove viene computato il valore dei difs.
+reference: https://groups.google.com/g/ns-3-users/c/uvvJGQw1_PE info obsolete
+Guardando meglio la documentazione, pifs e sifs si possono tranquillamente settare.
+Classi che lo permettono (incluse nelle altre):
+- Interfaccia di modifica a livello PHY:
+- https://www.nsnam.org/docs/release/3.41/doxygen/dc/d2d/classns3_1_1_wifi
+_phy.html#aaddca77c5838ad61328ec4cc5063a398
+- Interfaccia di modifica a livello MAC:
+https://www.nsnam.org/docs/release/3.27/doxygen/classns3_1_1_wifi_mac.html
+Esempio che funziona in build quando eseguito che permette di settare i parametri
+SIFS/PIFS → 
+examples/wireless/wifi-timing-attributes.cc
+https://www.nsnam.org/docs/doxygen/da/d8f/wifi-timing-attributes_8cc.html
+Per quanto riguarda i difs, forse ho trovato dove cambiarli:
+src/wifi/model/rate-control/rraa-wifi-manager.cc
+src/wifi/model/rate-control/rrpaa-wifi-manager.cc (non
+cancellare, non è un duplicato)
+Qua ci sono i plot 
+(wifi-manager)
+in questi file c’è un member field 
+m_difs 
+con la formulina. Possiamo impostarlo a
+m_difs=m_sifs 
+ma bisogna usare il rate control. Gli unici rate control dove sembra poter
+intervenire cambiando i difs sono il Robust Rate and Power Adaptation Algorithm (rrpaa) e il
+Robust Rate Adaptation Algorithm (rraa)
+Questo potrebbe essere un buon esempio di partenza anche se parte di quello che fa non ci
+interessa (Test the operation of a wifi manager as the SNR is varied) ma si può usare per
+usare il protocollo che vogliamo e il wifimanager che vogliamo (noi vogliamo rrpaa o rraa)
+src/wifi/examples/wifi-manager-example.cc
+Rate control algorithms
+In pratica se usiamo il rraa o rrpaa wifi manager, le modifiche che apportiamo al codice del
+WifiManager dovrebbero andare in porto. Poi il manager va istanziato nel main nel nostro
+script.
+Robust Rate Adaptation Algorithm (rraa)
+This is an implementation of RRAA as described in "Robust rate adaptation for 802.11
+wireless networks" by "Starsky H. Y. Wong", "Hao Yang", "Songwu Lu", and, "Vaduvur
+Bharghavan" published in Mobicom 06.
+
+This RAA does not support HT modes and will error exit if the user tries to configure this
+RAA with a Wi-Fi MAC that supports 802.11n or higher
+Reference:
+https://www.nsnam.org/docs/release/3.41/doxygen/d0/d22/classns3_1_1_rraa_wifi_manager
+.html
+Robust Rate and Power Adaptation Algorithm (rrpaa)
+This class implements the RRPAA algorithm as described in Rate, Power and Carrier-Sense
+Threshold Coordinated Management for High-Density IEEE 802.11 Networks by Matías
+Richart; Jorge Visca and Javier Baliosian in Integrated Network Management (IM), 2015
+IFIP/IEEE International Symposium on (pp. 139-146). IEEE.
+http://dl.ifip.org/db/conf/im/im2015/137430.pdf
+RRPAA adds power control to the RRAA mechanism. RRAA is described in Robust rate
+adaptation for 802.11 wireless networks by Starsky H. Y. Wong; Hao Yang; Songwu Lu and
+Vaduvur Bharghavan in Proceedings of the 12th annual international conference on Mobile
+computing and networking (pp. 146-157). ACM.
+http://ocw.cs.pub.ro/courses/_media/isrm/articole/rrate_adapt_mobicom06.pdf For each rate
+there is a Opportunistic Rate Increase threshold, a Maximum Tolerable Loss threshold and
+an Evaluation Window.
+Reference:
+https://www.nsnam.org/docs/release/3.29/doxygen/structns3_1_1_wifi_rrpaa_thresholds.htm
+l#details
+https://www.nsnam.org/docs/release/3.41/doxygen/d4/d1d/classns3_1_1_rrpaa_wifi_manag
+er.html
+Minstrel Algorithm
+Minstrel is a practical rate selection algorithm for commodity 802.11 radios, implemented in
+the Linux kernel and the ns-3 network simulator. Design of a rate selection mechanism is
+complicated by the variety of sources of packet loss in 802.11 networks, the difficulty of
+testing rate adaptation,and interaction with higher layer protocols (especially TCP).
+Minstrel is based solely on acknowledgement feedback.
+Consequently, estimates of future success at a given rate are based
+only on past success ratios at that rate. Minstrel selects rates that will give an approximation
+to the best available throughput, while delivering packets with the highest probability
+achievable given link conditions and a constraint on the transmitter time to be spent on any
+one packet, so as to be friendly to higher layer protocols.
+If Minstrel fails to achieve communication with a neighbor, it collects good evidence that no
+communication is possible. Conversely, if communication is at all possible, Minstrel will find
+rates to use that will achieve the best reliability and close to the best performance available.
+
+Reference:
+https://www.nsnam.org/docs/release/3.27/doxygen/classns3_1_1_minstrel_ht_wifi_manager.
+html
+Paper:
+https://blog.cerowrt.org/papers/minstrel-sigcomm-final.pdf
+ns3 application reference:
+https://groups.google.com/g/ns-3-users/c/I8pjZpkCEsk
+Risorse utili
+Utile per capire come calcolare le collisioni:
+https://groups.google.com/g/ns-3-users/c/B4VUlBzCmAc
+Note incontri
+22/07
+Appunti grezzi
+Versione Wi-Fi che ci conviene
+Scelta topologia = AP con X nodi (esempio) parametro, magari ci torna utile (fissata)
+Plottarlo i base alle collisioni (capire come estrapolarle)
+● Successivamente
+Implementazione del parametro
+● Poi
+Usare uno degli algoritmi presenti (rraa e l’altro – unici punti in cui mettere mano a sifs)
+Rubare dagli esempi del tutorial e dagli algoritmi che Nicola ha inserito come esempio
+(attenzione: non unico, vedi se qualcos’altro eventualmente è più utile)
+Vedere come si comporta con/senza contention window e aumentando/cambiando il numero
+di nodi.
+Appunti rivisti
+1. Definizione delle Specifiche di Base
+a. Versione Wi-Fi: 802.11a e 802.11n
+b. Topologia: Un Access Point (AP) con X nodi (parametrizzabile)
+c. Metrica principale: Tasso di collisioni
+
+2. Implementazione di Base
+a. Creare una simulazione con topologia AP + X nodi
+b. Implementare la raccolta dati sulle collisioni
+c. Creare plot per visualizzare il tasso di collisioni nel tempo
+3. Parametrizzazione e Sperimentazione
+a. Implementare parametri da linea di comando per:
+i. Numero di nodi
+ii. Versione Wi-Fi (802.11a o 802.11n)
+iii. Algoritmo di rate adaptation (RRAA, RRPAA, Minstrel)
+iv. Uso della contention window
+v. Tempo SIFS
+
+b. Eseguire esperimenti variando:
+i. Numero di nodi
+ii. Con/senza contention window
+iii. Diversi valori di SIFS
+4. Modifica degli Algoritmi di Rate Adaptation
+a. Modificare RRAA e RRPAA per utilizzare solo SIFS
+b. Rimuovere l'uso di DIFS/PIFS
+c. Implementare una versione modificata che usa CSMA con solo SIFS
+5. Analisi Comparativa
+a. Confrontare le prestazioni di:
+i. RRAA modificato vs. RRAA originale
+ii. RRPAA modificato vs. RRPAA originale
+iii. Versione CSMA modificata vs. 802.11 standard
+b. Analizzare l'impatto su:
+i. Tasso di collisioni
+ii. Throughput
+iii. Latenza
+
+Descrizione esempi tutorial
+Gli esempi (cartella “
+examples/tutorial
+” - file “.cc”) mostrano:
+- 
+l’uso dei log e dei trace per 
+“first”
+- 
+lo sviluppo di una bus topology ispezionando i dump con 
+tcpdump 
+per 
+“second”
+- 
+la creazione di una topologia wireless usando un helper per configurare dati a livello
+PHY e Wi-Fi per 
+“third”
+- 
+l’esempio completo di tracing dentro 
+“fourth”
+- fifth 
+mostra una cosa diversa (Sezione 8 - Tutorial)
+- 
+include 
+“tutorial-app.h”
+, che permette la creazione del socket
+separatamente in un’altra classe, includendo i moduli di ns3
+- 
+questo permette di gestire le cose separatamente
+- una volta eseguito come sopra, dà un modo di generare i plot
+- > /ns3 run fifth > cwnd.dat 2>&1
+- gnuplot
+- gnuplot> set terminal png size 640,480
+- gnuplot> set output "cwnd.png"
+- gnuplot> plot "cwnd.dat" using 1:2 title
+'Congestion Window' with linespoints
+- gnuplot> exit
+- sixth 
+genera un pcap di tracing e un file di contention window
+- seventh 
+(Sezione 9 - Tutorial) usa IPv6, 
+GnuplotHelper
+, per sviluppare grafici
+con gnuplot
+Trovare altri esempi su cui lavorare (Sezione 8 - Tutorial):
+- Esempio “SIFS”
+> find . -name '*.cc' | xargs grep SIFS
+Per lavorare a livello fisico:
+- cartella “
+examples/wireless
+”
+- in particolare il file “wifi-timing-attributes.cc”
+- riferimenti di codice sorgente stanno
+- nella cartella 
+“src/wifi/test”
+- nella cartella 
+“src/wifi/model”
+
+WNMA - Progetto con survey
+Topics reading at course content
+Device-to-Device (D2D) Communication
+● Survey recent approaches enabling D2D interaction and communication in mobile
+networks.
+● Analyze the benefits, challenges, and potential applications of D2D communication.
+● Compare different D2D architectures and protocols proposed in the literature.
+● Especially important inside of LTE advanced networks
+Personal considerations:
+- Interesting in general and has implications in the immediate and far future
+Starting material:
+● Doppler et al., “Device-to-device communication as an underlay to LTE-advanced
+networks,” IEEE Communications Magazine, 2009.
+● Asadi et al., “A Survey on Device-to-Device Communication in Cellular Networks,”
+IEEE Communications Surveys Tutorials, 2014.
+● LTE Direct as a Device-to-Device Network Technology: Use Cases and Security
+Unmanned Aerial Vehicle (UAV) Route Planning
+● Survey state-of-the-art approaches for UAV route planning and navigation.
+● Analyze the unique requirements and constraints of UAV route planning, such as
+flight dynamics and obstacles.
+● Discuss different optimization techniques and algorithms used for UAV routing.
+Personal considerations:
+- May be difficult due to complex algorithms being involved
+Starting material:
+● Myers et al., “A Real-Time Network Approach for Including Obstacles and Flight
+Dynamics in UAV Route Planning,” Journal of Defense Modeling and Simulation,
+2014.
+● Royset et al., “Routing military aircraft with a constrained shortest-path algorithm,”
+Military Operations Research, 2009.
+
+Body Area Networks (BANs) and Predictive/Behavioral Algorithms
+● Survey the use of predictive and behavioral algorithms in BANs for healthcare
+applications.
+● Investigate how BANs can leverage user data and machine learning to improve
+monitoring and rehabilitation.
+● Analyze the challenges and opportunities in deploying BAN systems for different
+medical conditions.
+Personal considerations:
+- Interesting from the point of view of wearable technology
+- Also in the context of privacy/security concerns
+- Significant in terms of potential for healthcare applications
+Starting material:
+● Hanson et al., “Body Area Sensor Networks: Challenges and Opportunities,”
+Computer, 2009.
+● Kennedy et al., “Active Assistance Technology for Health-Related Behavior Change:
+An Interdisciplinary Review,” Journal of Medical Internet Research, 2012.
+2D Vehicular Networks (VANETs)
+● Survey routing protocols and data dissemination mechanisms for 2D VANET
+scenarios.
+● Discuss the impact of road topology and vehicle mobility on VANET performance.
+● Explore solutions for efficient message forwarding and coverage in urban 2D VANET
+environments.
+Personal considerations:
+- Very interesting, since it can be applied to autonomous vehicles driving and smart
+cities
+Starting material:
+● Julio et al., “RTAD: A real-time adaptive dissemination system for VANETs,”
+Computer Communications, 2015.
+● Alvaro T. et al., "Evaluation of flooding schemes for real-time video transmission in
+VANETs"
+2D/3D Drone Networks (FANETs)
+● Survey the unique challenges and requirements of drone networks compared to
+traditional MANETs.
+● Analyze mobility models and their impact on routing protocols in 2D and 3D drone
+network scenarios.
+
+● Explore applications and services that can benefit from the integration of drone
+networks.
+Personal considerations:
+- Might be useful here to focus on specific applications (e.g. disaster
+response/package delivery)
+- May be hard since it involves analysis of 3D scenarios
+Starting material:
+● Various workshops and conference papers from SIGMOBILE's DroNet sessions
+Seamless Communication and Pairing
+● Survey techniques for achieving seamless data transfer between wireless devices
+without explicit pairing.
+● Investigate the use of advertisement frames and other mechanisms to enable
+user-transparent connectivity.
+● Compare solutions for different wireless technologies, such as Bluetooth Low Energy
+and Wi-Fi.
+Personal considerations:
+- Closely related to the field of ubiquitous wireless computing
+- Pretty general and also pretty applicable
+Starting material:
+● Corbellini et al., “Two-Way Communication Protocol using Bluetooth Low Energy
+Advertisement Frames,” MobiCom Smartobjects, 2015.
+● Bhojan and Wei, “mumble: Framework for Seamless Message Transfer on
+Smartphones,” MobiCom Smart Objects, 2015.
+Wireless Charging and Energy Management for Mobile Devices
+- State-of-the-art in wireless charging technologies
+- Analyze the challenges and opportunities in integrating wireless charging into mobile
+ad-hoc networks
+- Discuss novel energy management strategies that leverage wireless charging for
+prolonged device operation
+Starting material:
+- Recent papers on magnetic resonance and RF-based wireless charging technologies
+
+Personal considerations:
+- This may be interesting for extending the operational time of nodes in mobile ad-hoc
+networks
+Location-Based Services and Augmented Reality in Wireless Networks
+- Survey the use of wireless technologies (e.g., WiFi, Bluetooth, UWB) for indoor
+localization and positioning
+- Explore the integration of localization capabilities with augmented reality applications
+for mobile devices
+- Discuss the technical challenges and potential solutions for enabling seamless AR
+experiences in wireless networks
+Starting material:
+- Papers on recent advancements in indoor positioning systems and AR frameworks
+for mobile devices
+Personal considerations:
+- This combines networking with computer vision and human-computer interaction
+- Consider focusing on the networking challenges of real-time AR applications
+Wireless Sensor Networks for Environmental Monitoring and Smart Cities
+- Survey the applications of wireless sensor networks in urban environments for
+monitoring air quality, noise levels, traffic, etc
+- Analyze the data collection, aggregation, and dissemination mechanisms employed
+in wireless sensor-based smart city deployments
+- Discuss the role of edge/fog computing and the Internet of Things (IoT) in enhancing
+the capabilities of wireless sensor networks for smart city applications
+Starting material:
+- Survey papers on IoT-based smart city deployments
+Personal considerations:
+- Really interesting since Palazzi particularly cares about anything about energy
+consume and management
+Blockchain and Distributed Ledger Technologies in Wireless Networks
+- Investigate the potential integration of blockchain or distributed ledger technologies
+with mobile ad-hoc networks and wireless mesh networks
+- Explore the use cases and benefits of blockchain-based solutions for secure data
+sharing, resource management, and trustless transactions in wireless environments
+
+- Discuss the technical challenges and design considerations in adapting blockchain
+principles to the constraints of wireless networks.
+Starting material:
+- Papers on lightweight blockchain protocols for IoT and mobile devices
+Personal considerations:
+- I studied blockchain in my bachelor, so I’m fresh on this, but it might be difficult,
+possibly the hardest
+- This is a cutting-edge topic that combines networking with cryptography and
+distributed systems
+- Consider focusing on specific use cases in mobile or ad-hoc networks.
+Delay tolerant networking for challenged environments
+● Examine DTN protocols and applications for intermittently connected networks.
+Personal considerations:
+Starting material:
+Comparison of TCP variants for satellite communications
+● One can compare TCP Reno, TCP New Reno, TCP Westwood, TCP Hybla and
+analyze their performance in satellite network scenarios.
+Personal considerations:
+- This topic allows for practical performance comparisons
+- Consider including newer TCP variants and discussing how they address specific
+challenges in satellite communications, such as long propagation delays and high bit
+error rates
+Starting material:
+● Caini, C. and Firrincieli, R., "TCP Hybla: a TCP enhancement for heterogeneous
+networks," International Journal of Satellite Communications and Networking, 2004.
+● Akyildiz, I.F., Morabito, G. and Palazzo, S., "TCP-Peach: a new congestion control
+scheme for satellite IP networks," IEEE/ACM Transactions on Networking, 2001.
+
+Vehicular ad-hoc networks (VANETs) and applications
+● Survey recent developments in VANET protocols, architectures and applications like
+smart traffic management, safety systems, etc.
+Personal considerations:
+- VANETs are a key component of intelligent transportation systems
+- Consider focusing on how VANETs can enable new applications like platooning,
+real-time traffic optimization, or vehicle-to-pedestrian safety systems.
+Starting material:
+- Karagiannis, G. et al., "Vehicular Networking: A Survey and Tutorial on
+Requirements, Architectures, Challenges, Standards and Solutions," IEEE
+Communications Surveys & Tutorials, 2011.
+- Hartenstein, H. and Laberteaux, K.P., "A tutorial survey on vehicular ad hoc
+networks," IEEE Communications Magazine, 2008.
+Flying ad-hoc networks (FANETs) with drones
+● Examine routing protocols, challenges and use cases for networks of drones/UAVs.
+Personal considerations:
+- FANETs face unique challenges due to the 3D nature of movement and rapid
+topology changes
+- Consider exploring how FANETs could be integrated with ground-based networks or
+used in specific scenarios like search and rescue operations.
+Starting material:
+- Bekmezci, I., Sahingoz, O.K. and Temel, Ş., "Flying Ad-Hoc Networks (FANETs): A
+survey," Ad Hoc Networks, 2013.
+- Gupta, L., Jain, R. and Vaszkun, G., "Survey of Important Issues in UAV
+Communication Networks," IEEE Communications Surveys & Tutorials, 2016.
+Indoor localization techniques for mobile devices
+● Compare different approaches like Wi-Fi fingerprinting, Bluetooth beacons, sensor
+fusion etc.
+Personal considerations:
+- Crucial for many location-based services and applications
+- Personal considerations: Indoor localization is a complex problem with no
+one-size-fits-all solution
+
+- Consider discussing the trade-offs between different approaches in terms of
+accuracy, cost, and scalability.
+Starting material:
+- He, S. and Chan, S.H.G., "Wi-Fi Fingerprint-Based Indoor Positioning: Recent
+Advances and Comparisons," IEEE Communications Surveys & Tutorials, 2016.
+- Zafari, F., Gkelias, A. and Leung, K.K., "A Survey of Indoor Localization Systems and
+Technologies," IEEE Communications Surveys & Tutorials, 2019.
